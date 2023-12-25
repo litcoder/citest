@@ -10,7 +10,6 @@ env:
   ADB: "${ANDROID_HOME}/platform-tools/adb"
   CMDLINE_TOOLS: "${ANDROID_HOME}/cmdline-tools/latest/bin/"
   EMULATOR: "${ANDROID_HOME}/emulator/emulator"
-  AVD_CONFIG: "system-images;android-34;google_apis;x86_64"
   AVD_NAME: "Pixel_C_API_34"
 
 jobs:
@@ -36,13 +35,13 @@ jobs:
         # Install Android images.
         echo y | \
           ${{ env.CMDLINE_TOOLS }}/sdkmanager \
-          ${{ env.AVD_CONFIG }}
+          "system-images;android-34;google_apis;x86_64"
 
         # Create an AVD
         echo n | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
           create avd -n ${{ env.AVD_NAME }} \
-          -k ${{ env.AVD_CONFIG }}
+          -k "system-images;android-34;google_apis;x86_64"
 
         # Check if AVD's created okay
         ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
