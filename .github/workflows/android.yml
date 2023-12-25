@@ -24,14 +24,8 @@ jobs:
     - name: Lint
       run: sh ./gradlew lint
 
-    - name: List SDK directory
+    - name: List AVDs
       run: |
-        # /usr/local/lib/android/sdk
-        ls -al $ANDROID_HOME
-    - name: List NDK directory
-      run: |
-        # /usr/local/lib/android/sdk/ndk
-        ls -al $ANDROID_HOME/ndk
-
+        $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
 
