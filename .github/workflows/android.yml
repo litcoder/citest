@@ -7,9 +7,11 @@ on:
     branches: [ "main" ]
 
 env:
+  ADB: "${ANDROID_HOME}/platform-tools/adb"
   CMDLINE_TOOLS: "${ANDROID_HOME}/cmdline-tools/latest/bin/"
   EMULATOR: "${ANDROID_HOME}/emulator/emulator"
-  EMULATOR_NAME: "Pixel_C_API_34"
+  AVD_CONFIG: "system-images;android-34;google_apis;x86_64"
+  AVD_NAME: "Pixel_C_API_34"
 
 jobs:
   unittest-apk:
@@ -34,13 +36,13 @@ jobs:
         # Install Android images.
         echo y | \
           ${{ env.CMDLINE_TOOLS }}/sdkmanager \
-          "system-images;android-34;google_apis;x86_64"
+          ${{ env.AVD_CONFIG }}
 
         # Create an AVD
         echo n | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
-          create avd -n ${{ env.EMULATOR_NAME }} \
-          -k "system-images;android-34;google_apis;x86_64"
+          create avd -n ${{ env.AVD_NAME }} \
+          -k ${{ env.AVD_CONFIG }}
 
         # Check if AVD's created okay
         ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
@@ -49,11 +51,11 @@ jobs:
       run: |
         # Launch AVD with CPU acceleration turned off
         # since GitHub runners doesn't allow /dev/kvm perm.
-        ${{ env.EMULATOR }} -avd ${{ env.EMULATOR_NAME }} \
+        ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
           -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
 
         # Run the on-device tests.
-        adb wait-for-device && \
+        ${{ env.ADB }} wait-for-device && \
         sh ./gradlew connectedCheck
 
 
