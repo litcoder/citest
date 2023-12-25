@@ -18,9 +18,20 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Build APK with gradle
+      run: sh ./gradle build
+
     - name: Lint
       run: sh ./gradlew lint
 
-    - name: Build APK with gradle
-      run: sh ./gradle build
+    - name: List SDK directory
+      run: |
+        # /usr/local/lib/android/sdk
+        ls -al $ANDROID_HOME
+    - name: List NDK directory
+      run: |
+        # /usr/local/lib/android/sdk/ndk
+        ls -al $ANDROID_HOME/ndk
+
+
 
