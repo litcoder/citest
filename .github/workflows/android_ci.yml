@@ -40,8 +40,8 @@ jobs:
         # Create an AVD
         echo n | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
-          create avd -n ${{ env.AVD_NAME }} \
-          -k "system-images;android-34;google_apis;x86_64"
+            create avd -n ${{ env.AVD_NAME }} \
+            -k "system-images;android-34;google_apis;x86_64"
 
         # Check if AVD's created okay
         ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
@@ -56,6 +56,6 @@ jobs:
     - name: Execute on-device unittest
       run: |
         ${{ env.ADB }} kill-server && \
-        ${{ env.ADB }} reconnect && \
-        ${{ env.ADB }} wait-for-device && \
-        sh ./gradlew connectedCheck
+          ${{ env.ADB }} reconnect && \
+          ${{ env.ADB }} wait-for-device && \
+          sh ./gradlew connectedCheck
