@@ -33,27 +33,26 @@ jobs:
     - name: Setup an emulator
       run: |
         # Install Android images.
-        echo y | \
-          ${{ env.CMDLINE_TOOLS }}/sdkmanager \
+        sh -c yes | \
+        ${{ env.CMDLINE_TOOLS }}/sdkmanager --licenses > /dev/null
+        ${{ env.CMDLINE_TOOLS }}/sdkmanager --install \
           "system-images;android-34;google_apis;x86_64"
 
         # Create an AVD
-        echo n | \
+        echo no | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
-            create avd -n ${{ env.AVD_NAME }} \
-            -k "system-images;android-34;google_apis;x86_64"
+            create avd --force -n ${{ env.AVD_NAME }} \
+            --package "system-images;android-34;google_apis;x86_64"
 
-        # Check if AVD's created okay
-        ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
-
-    - name: Launch an emulator
+    - name: Launch and unittest
       run: |
         # Launch an AVD with CPU acceleration turned off
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
-          -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
+          -no-snapshot-save -no-window -gpu swiftshader_indirect \
+          -no-audio -no-boot-anim -camera-back none &
+        #  -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
           ${{ env.ADB }} wait-for-device && \
-          sleep 30 && \
           sh ./gradlew connectedCheck
