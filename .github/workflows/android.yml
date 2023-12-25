@@ -19,7 +19,7 @@ jobs:
         cache: gradle
 
     - name: Build APK with gradle
-      run: sh ./gradle build
+      run: sh ./gradle assemble
 
     - name: Lint
       run: sh ./gradlew lint
