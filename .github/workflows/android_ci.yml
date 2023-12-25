@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: set up JDK 17
+    - name: Setup JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -52,9 +52,6 @@ jobs:
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
           -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
-
-    - name: Execute on-device unittest
-      run: |
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
           ${{ env.ADB }} wait-for-device && \
