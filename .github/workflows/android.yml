@@ -46,15 +46,16 @@ jobs:
         # Check if AVD's created okay
         ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
 
-    - name: Run instrumentation test
+    - name: Launch an emulator
       run: |
-        # Launch AVD with CPU acceleration turned off
+        # Launch an AVD with CPU acceleration turned off
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
           -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
 
-        # Run the on-device tests.
+    - name: Execute on-device unittest
+      run: |
+        ${{ env.ADB }} kill-server && \
+        ${{ env.ADB }} reconnect && \
         ${{ env.ADB }} wait-for-device && \
         sh ./gradlew connectedCheck
-
-
