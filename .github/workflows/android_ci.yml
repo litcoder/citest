@@ -55,4 +55,5 @@ jobs:
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
           ${{ env.ADB }} wait-for-device && \
+          sleep 30 && \
           sh ./gradlew connectedCheck
