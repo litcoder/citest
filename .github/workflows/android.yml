@@ -33,4 +33,10 @@ jobs:
         # Check if it's created
         $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
 
+    - name: Run instrumentation test
+      run: |
+        AVD_NAME=Pixel_C_API_34
+        $ANDROID_HOME/emulator/emulator -avd ${AVD_NAME} -no-window -no-snapshot -no-audio -no-boot-anim -accel auto -verbose
+        sh ./gradlew connectedCheck
+
 
