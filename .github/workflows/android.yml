@@ -47,10 +47,13 @@ jobs:
 
     - name: Run instrumentation test
       run: |
-        # Turn off CPU acceleration,
+        # Launch AVD with CPU acceleration turned off
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.EMULATOR_NAME }} \
           -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
+
+        # Run the on-device tests.
+        adb wait-for-device && \
         sh ./gradlew connectedCheck
 
 
