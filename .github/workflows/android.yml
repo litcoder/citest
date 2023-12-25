@@ -6,8 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  CMDLINE_TOOLS: "${ANDROID_HOME}/cmdline-tools/latest/bin/"
+  EMULATOR: "${ANDROID_HOME}/emulator/emulator"
+  EMULATOR_NAME: "Pixel_C_API_34"
+
 jobs:
-  build-apk:
+  unittest-apk:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,17 +31,24 @@ jobs:
 
     - name: Setup a emulator
       run: |
-        echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-34;google_apis;x86_64"
-        # Create an AVD with a name
-        AVD_NAME=Pixel_C_API_34
-        echo n | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager -v create avd -n ${AVD_NAME} -k "system-images;android-34;google_apis;x86_64"
-        # Check if it's created
-        $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd
+        # Install Android images.
+        echo y | \
+          ${{ env.CMDLINE_TOOLS }}/sdkmanager \
+          "system-images;android-34;google_apis;x86_64"
+
+        # Create an AVD
+        echo n | \
+          ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
+          create avd -n ${{ env.EMULATOR_NAME }} \
+          -k "system-images;android-34;google_apis;x86_64"
+
+        # Check if AVD's created okay
+        ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
 
     - name: Run instrumentation test
       run: |
-        AVD_NAME=Pixel_C_API_34
-        $ANDROID_HOME/emulator/emulator -avd ${AVD_NAME} -no-window -no-snapshot -no-audio -no-boot-anim -accel auto -verbose
+        ${{ env.EMULATOR }} -avd ${{ env.EMULATOR_NAME }} \
+          -no-window -no-snapshot -no-audio -no-boot-anim -accel auto -verbose
         sh ./gradlew connectedCheck
 
 
