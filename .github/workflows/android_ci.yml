@@ -50,7 +50,7 @@ jobs:
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
           -no-snapshot-save -no-window -gpu swiftshader_indirect \
-          -no-audio -no-boot-anim -camera-back none &
+          -no-audio -no-boot-anim -camera-back none -accel off -verbose &
         #  -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
