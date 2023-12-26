@@ -38,6 +38,10 @@ jobs:
         ${{ env.CMDLINE_TOOLS }}/sdkmanager --install \
           "system-images;android-34;google_apis;x86_64"
 
+        # Verify installed modules.
+        echo no | \
+          ${{ env.CMDLINE_TOOLS }}/sdkmanager --list_installed
+
         # Create an AVD
         echo no | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
