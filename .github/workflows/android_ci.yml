@@ -49,10 +49,11 @@ jobs:
         # Launch an AVD with CPU acceleration turned off
         # since GitHub runners doesn't allow /dev/kvm perm.
         ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
-          -no-snapshot-save -no-window -gpu swiftshader_indirect \
-          -no-audio -no-boot-anim -camera-back none -accel off -verbose &
-        #  -no-window -no-snapshot -no-audio -no-boot-anim -accel off -verbose&
+          -no-snapshot-save -no-window -no-audio -no-boot-anim \
+          -camera-back none -accel off -verbose &
+
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
           ${{ env.ADB }} wait-for-device && \
+          ${{ env.ADB }} devices -l && \
           sh ./gradlew connectedCheck
