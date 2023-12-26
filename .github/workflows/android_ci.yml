@@ -59,5 +59,12 @@ jobs:
         ${{ env.ADB }} kill-server && \
           ${{ env.ADB }} reconnect && \
           ${{ env.ADB }} wait-for-device && \
-          ${{ env.ADB }} devices -l && \
-          sh ./gradlew connectedCheck
+          ${{ env.ADB }} devices -l
+
+        # Wait for boot completed
+        sh -c "while ! ${{ env.ADB }} shell getprop sys.boot_completed; do
+          sleep 1
+          done"
+
+        # Execute tests
+        sh ./gradlew connectedCheck
