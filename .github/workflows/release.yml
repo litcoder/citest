@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  TAG: ${{ github.ref_name }}
+  ASSET_FILE_PATH: "./prebuilt-${{ github.ref_name }}.zip"
+
+jobs:
+  build-android-package:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout source code and build Android APKs.
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      - name: Build Android APK and zip
+        run: |
+          sh ./gradlew assemble
+          zip -j ${{ env.ASSET_FILE_PATH }} \
+            ./app/build/outputs/apk/debug/app-debug.apk \
+            ./app/build/outputs/apk/release/app-release*.apk
+
+      # Attach prebuilt zip file to the release.
+      - name: Attach the file
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get a release for given tag.
+            const release = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: process.env.TAG
+            });
+            const release_id = release.data.id;
+            console.log("Release id for the tag " + process.env.TAG + ": " + release_id);
+
+            // Upload release assets.
+            const fs = require("fs");
+            const filename = process.env.ASSET_FILE_PATH.replace(/^.*[\\/]/, "");
+            var uploaded = await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release_id,
+              name: filename,
+              data: await fs.readFileSync(process.env.ASSET_FILE_PATH),
+            });
+            console.log(
+                process.env.ASSET_FILE_PATH
+                 + " has been uploaded as " + filename
+                 + " to the release " + process.env.TAG);
