@@ -1,0 +1,73 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  ADB: "${ANDROID_HOME}/platform-tools/adb"
+  CMDLINE_TOOLS: "${ANDROID_HOME}/cmdline-tools/latest/bin/"
+  EMULATOR: "${ANDROID_HOME}/emulator/emulator"
+  AVD_PACKAGE: "\"system-images;android-33;google_apis;x86_64\""
+  AVD_NAME: "Pixel_C_API_34"
+
+jobs:
+  unittest-apk:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Build APK with gradle
+      run: sh ./gradlew assemble
+
+    - name: Lint
+      run: sh ./gradlew lint
+
+    - name: Setup an emulator
+      run: |
+        # Install Android images.
+        sh -c yes | \
+        ${{ env.CMDLINE_TOOLS }}/sdkmanager --licenses > /dev/null
+        ${{ env.CMDLINE_TOOLS }}/sdkmanager --install  ${{ env.AVD_PACKAGE }}
+
+        # Verify installed modules.
+        echo no | \
+          ${{ env.CMDLINE_TOOLS }}/sdkmanager --list_installed
+
+        # Create an AVD
+        echo no | \
+          ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
+            create avd --force -n ${{ env.AVD_NAME }} \
+            -k ${{ env.AVD_PACKAGE }}
+
+        # List up AVDs
+        ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
+
+    - name: Launch and unittest
+      run: |
+        # Launch an AVD with CPU acceleration turned off
+        # since GitHub runners doesn't allow /dev/kvm perm.
+        ${{ env.EMULATOR }} -avd ${{ env.AVD_NAME }} \
+          -no-snapshot-save -no-window -no-audio -no-boot-anim \
+          -camera-back none -accel off -verbose &
+
+        ${{ env.ADB }} kill-server && \
+          ${{ env.ADB }} reconnect && \
+          ${{ env.ADB }} wait-for-device && \
+          ${{ env.ADB }} devices -l && \
+          sh ./gradlew connectedCheck
+        # # Wait for boot completed
+        # sh -c "while ! ${{ env.ADB }} shell getprop sys.boot_completed; do
+        #   sleep 1
+        #   done" && \
+
+        # # Execute tests
+        # sh ./gradlew connectedCheck
