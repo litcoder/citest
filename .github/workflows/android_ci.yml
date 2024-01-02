@@ -36,7 +36,7 @@ jobs:
         sh -c yes | \
         ${{ env.CMDLINE_TOOLS }}/sdkmanager --licenses > /dev/null
         ${{ env.CMDLINE_TOOLS }}/sdkmanager --install \
-          "system-images;android-34;google_apis;x86_64"
+          "system-images;android-34;google_apis;x86"
 
         # Verify installed modules.
         echo no | \
@@ -46,10 +46,10 @@ jobs:
         echo no | \
           ${{ env.CMDLINE_TOOLS }}/avdmanager -v \
             create avd --force -n ${{ env.AVD_NAME }} \
-            --package "system-images;android-34;google_apis;x86_64"
+            --package "system-images;android-34;google_apis;x86"
 
         # List up AVDs
-        ${{ env.CMDLINE_TOOLS }}/avdmanager -v list
+        ${{ env.CMDLINE_TOOLS }}/avdmanager list avd
 
     - name: Launch and unittest
       run: |
