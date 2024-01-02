@@ -48,6 +48,9 @@ jobs:
             create avd --force -n ${{ env.AVD_NAME }} \
             --package "system-images;android-34;google_apis;x86_64"
 
+        # List up AVDs
+        ${{ env.CMDLINE_TOOLS }}/avdmanager -v list
+
     - name: Launch and unittest
       run: |
         # Launch an AVD with CPU acceleration turned off
